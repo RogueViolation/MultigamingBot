@@ -195,7 +195,7 @@ namespace MultigamingBot.Bot
                 }
 
                 await _client.GetGuild(443484727236624384).GetTextChannel(751866189306921111).SendMessageAsync(embed: embedBuiler.Build());
-                await ProcessCodeMessage(data.message, data.state, codeRedeemable, guildUser.ToString());
+                await ProcessCodeMessage(data.message, data.state, codeRedeemable, guildUser.Id);
             }
             catch (Exception e)
             {
@@ -204,23 +204,20 @@ namespace MultigamingBot.Bot
 
             await Task.CompletedTask;
         }
-        private async Task ProcessCodeMessage(string message, string status, string code, string author)
+        private async Task ProcessCodeMessage(string message, string status, string code, ulong author)
         {
-            //This isvery very bad never do this. You should be jailed if you do this.
-
-            //string code
-            //string? dataField1
-            //string? dataField2
-            //string? dataField3,
-            //bool status,
-            //string? date,
-            //string? source
-
-            var asd = Regex.Match(message, @"\[(.*?)\]").Groups[1].Value;
-            var dataFields = asd.Split('/');
-
-            await _dataAccess.ExecuteCodeRedeemedProcedure(code, dataFields[0] ?? "null", dataFields[1] ?? "null", dataFields[2] ?? "null", status == "ok", DateTime.Now.ToString(), author);
-            await Task.CompletedTask;
+            if (status == "ok")
+            {
+                string[] dataFields = new string[3]; //Avoid bad things
+                dataFields = Regex.Match(message, @"\[(.*?)\]").Groups[1].Value.Split('/');
+                await _dataAccess.ExecuteCodeRedeemedProcedure(code, dataFields[0] ?? "null", dataFields[1] ?? "null", dataFields[2] ?? "null", true, DateTime.Now.ToString(), author);
+                await Task.CompletedTask;
+            }
+            else //error or something is wrong
+            {
+                await _dataAccess.ExecuteCodeRedeemedProcedure(code, "null", "null", "null", false, DateTime.Now.ToString(), author);
+                await Task.CompletedTask;
+            }
         }
 
         public Task LogAsync(LogMessage msg)
@@ -239,7 +236,7 @@ namespace MultigamingBot.Bot
             var asd = messages.ToEnumerable().ToList();
             //443484727236624385
 
-            if (msg.Author.Id == 751866327374889161 || msg.Author.Id == 1033139170845139045)
+            if (msg.Author.Id == 751866327374889161 || msg.Author.Id == 1033139170845139045 || msg.Author.Id == 174623298146009089)
             {
                 await RedeemCodeAutomaticAsync(msg);
             }

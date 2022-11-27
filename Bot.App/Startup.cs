@@ -14,10 +14,6 @@ namespace MultigamingBot
 
         public Startup()
         {
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile("config.json");
-
-            Configuration = builder.Build();
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -28,9 +24,7 @@ namespace MultigamingBot
                 loggerBuilder.AddConsole();
             });
             services.AddOptions();
-            services.Configure<ConfigurationSection>(Configuration.GetSection("config"));
-            services.AddSingleton(Configuration)
-                .AddSingleton<IBotCommands, BotCommands>()
+            services.AddSingleton<IBotCommands, BotCommands>()
                 .AddTransient<IConfigurationReader, ConfigurationReader>()
                 .AddTransient<IDBDataAccess, DBDataAccess>()
                 .AddSingleton<IDiscordSocketClientProvider, DiscordSocketClientProvider>();

@@ -130,7 +130,7 @@ namespace MultigamingBot.Bot
                 var codeRedeemable = msg.Content.Substring(msg.Content.LastIndexOf("Copy this code ") + "Copy this code ".Length, 19);
 
                 await Task.Delay(1000); //Add delay because when code is published it is not still active
-
+                //TODO: Change to something that is not obsolete:)
                 WebRequest request = WebRequest.Create("https://api.nightriderz.world/gateway.php");
                 request.Method = "POST";
                 request.ContentType = "application/json";

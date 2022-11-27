@@ -3,8 +3,11 @@ using Bot.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using MultigamingBot.Bot;
 using MultigamingBot.Configuration;
+using Serilog;
+using System;
 
 namespace MultigamingBot
 {
@@ -23,7 +26,16 @@ namespace MultigamingBot
                 loggerBuilder.ClearProviders();
                 loggerBuilder.AddConsole();
             });
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.Console()
+                .WriteTo.File("../logs/logfile.log", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
             services.AddOptions();
+            services.AddLogging(builder =>
+            {
+                builder.AddSerilog();
+            });
             services.AddSingleton<IBotCommands, BotCommands>()
                 .AddTransient<IConfigurationReader, ConfigurationReader>()
                 .AddTransient<IDBDataAccess, DBDataAccess>()

@@ -33,10 +33,6 @@ namespace MultigamingBot
             Startup startup = new Startup();
             startup.ConfigureServices(services);
             IServiceProvider serviceProvider = services.BuildServiceProvider();
-            var logger = serviceProvider.GetService<ILogger<Program>>();
-            logger.LogInformation("Hello world!");
-
-            logger.LogDebug("Logger is working!");
 
             RunFlow(serviceProvider.GetService<ILogger<BotSetup>>(), serviceProvider.GetService<IBotCommands>(), serviceProvider.GetService<IConfigurationReader>(), serviceProvider.GetService<IDiscordSocketClientProvider>());
             Thread.Sleep(-1);

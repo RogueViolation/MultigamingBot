@@ -206,6 +206,8 @@ namespace MultigamingBot.Bot
         }
         private async Task ProcessCodeMessage(string message, string status, string code, string author)
         {
+            //This isvery very bad never do this. You should be jailed if you do this.
+
             //string code
             //string? dataField1
             //string? dataField2

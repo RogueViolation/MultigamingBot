@@ -130,40 +130,26 @@ namespace MultigamingBot.Bot
                 var codeRedeemable = msg.Content.Substring(msg.Content.LastIndexOf("Copy this code ") + "Copy this code ".Length, 19);
 
                 await Task.Delay(1000); //Add delay because when code is published it is not still active
-                //TODO: Change to something that is not obsolete:)
-                WebRequest request = WebRequest.Create("https://api.nightriderz.world/gateway.php");
-                request.Method = "POST";
-                request.ContentType = "application/json";
-                request.Headers.Add("Sec-Ch-Ua", "\"(Not(A:Brand\"; v = \"8\", \"Chromium\"; v = \"99\"");
-                request.Headers.Add("Easharpptr-P", "267411");
-                request.Headers.Add("Sec-Ch-Ua-Mobile", "?0");
-                request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36");
-                request.Headers.Add("Accept", "application/json");
-                request.Headers.Add("Easharpptr-U", "c93ef9261bc46ff3.5709d8a4afc037aa0ea2a24b03a6d1f7fdf16723.9l9tMcZYlswEDkweb/LdXg==");
-                request.Headers.Add("Sec-Ch-Ua-Platform", "Windows");
-                request.Headers.Add("Origin", "https://nightriderz.world");
-                request.Headers.Add("Sec-Fetch-Site", "same-site");
-                request.Headers.Add("Sec-Fetch-Mode", "cors");
-                request.Headers.Add("Sec-Fetch-Dest", "empty");
-                request.Headers.Add("Referer", "https://nightriderz.world/");
-                request.Headers.Add("Accept-Language", "en-US,en;q=0.9");
-                string postData = $"{{\"serviceName\":\"account\",\"methodName\":\"redeemcode\",\"parameters\":[\"{codeRedeemable}\"]}}";
-                byte[] byteArray = Encoding.UTF8.GetBytes(postData);
-                request.ContentLength = byteArray.Length;
-                Stream dataStream = request.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-                Console.WriteLine(request);
-                WebResponse response = request.GetResponse();
-                Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-                dataStream = response.GetResponseStream();
-                StreamReader reader = new StreamReader(dataStream);
-                string responseFromServer = reader.ReadToEnd();
-                NRZResponse data = JsonConvert.DeserializeObject<NRZResponse>(responseFromServer);
-                Console.WriteLine(responseFromServer);
-                reader.Close();
-                dataStream.Close();
-                response.Close();
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("Sec-Ch-Ua", "\"(Not(A:Brand\"; v = \"8\", \"Chromium\"; v = \"99\"");
+                client.DefaultRequestHeaders.Add("Easharpptr-P", "267411");
+                client.DefaultRequestHeaders.Add("Sec-Ch-Ua-Mobile", "?0");
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36");
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.DefaultRequestHeaders.Add("Easharpptr-U", "c93ef9261bc46ff3.5709d8a4afc037aa0ea2a24b03a6d1f7fdf16723.9l9tMcZYlswEDkweb/LdXg==");
+                client.DefaultRequestHeaders.Add("Sec-Ch-Ua-Platform", "Windows");
+                client.DefaultRequestHeaders.Add("Origin", "https://nightriderz.world");
+                client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-site");
+                client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
+                client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
+                client.DefaultRequestHeaders.Add("Referer", "https://nightriderz.world/");
+                client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.9");
+
+                var response = await client.PostAsync("https://api.nightriderz.world/gateway.php", new StringContent($"{{\"serviceName\":\"account\",\"methodName\":\"redeemcode\",\"parameters\":[\"{codeRedeemable}\"]}}", Encoding.UTF8, "application/json"));
+                var text = response.Content.ReadAsStringAsync().Result;
+
+                NRZResponse data = JsonConvert.DeserializeObject<NRZResponse>(response.Content.ReadAsStringAsync().Result);
+                //response.Close();
                 switch (data.state)
                 {
                     case "ok":

@@ -48,5 +48,27 @@ namespace Bot.DBDataAccess
             }
             await Task.CompletedTask;
         }
+
+        public async Task RetrieveStoredCodes()
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetSection("connectionString")))
+                {
+                    connection.Open();
+
+                    var cmd = new SqlCommand("dbo.uspRetrieveStoredCodes", connection);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    var returnData = cmd.ExecuteReader();
+                    connection.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error occured while running \"dbo.uspRetrieveStoredCodes\" {e.Message}");
+            }
+            await Task.CompletedTask;
+        }
     }
 }

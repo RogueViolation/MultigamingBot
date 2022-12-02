@@ -15,7 +15,7 @@ namespace Bot.Utilities
         {
             _client = SetupClient();
         }
-        public DiscordSocketClient ProvideClient()
+        public DiscordSocketClient ProvideDiscordSocketClient()
         {
             return _client;
         }

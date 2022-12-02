@@ -9,6 +9,6 @@ namespace Bot.Utilities
 {
     public interface IDiscordSocketClientProvider
     {
-        DiscordSocketClient ProvideClient();
+        DiscordSocketClient ProvideDiscordSocketClient();
     }
 }

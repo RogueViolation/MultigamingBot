@@ -29,7 +29,7 @@ namespace MultigamingBot.Bot
             _logger = logger;
             _dataAccess = dataAccess;
             _config = config;
-            _client = clientProvider.ProvideClient();
+            _client = clientProvider.ProvideDiscordSocketClient();
         }
         public async Task HandleListRoleCommandAsync(SocketSlashCommand command)
         {
@@ -197,13 +197,13 @@ namespace MultigamingBot.Bot
                 string[] dataFields = new string[3]; //Avoid bad things
                 dataFields = Regex.Match(message, @"\[(.*?)\]").Groups[1].Value.Split('/');
                 await _dataAccess.ExecuteCodeRedeemedProcedure(code, dataFields[0] ?? "null", dataFields[1] ?? "null", dataFields[2] ?? "null", true, DateTime.Now.ToString(), author);
-                await Task.CompletedTask;
             }
             else //error or something is wrong
             {
                 await _dataAccess.ExecuteCodeRedeemedProcedure(code, "null", "null", "null", false, DateTime.Now.ToString(), author);
-                await Task.CompletedTask;
             }
+
+            await Task.CompletedTask;
         }
 
         public Task LogAsync(LogMessage msg)

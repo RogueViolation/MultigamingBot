@@ -33,7 +33,7 @@ namespace MultigamingBot
             _logger = logger;
             _command = command;
             _configuration = configuration;
-            _client = clientProvider.ProvideClient();
+            _client = clientProvider.ProvideDiscordSocketClient();
         }
 
         public async void StartBot()

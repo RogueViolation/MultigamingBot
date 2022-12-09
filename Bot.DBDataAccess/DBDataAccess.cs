@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using MultigamingBot.Configuration;
 using System.Data;
 
-namespace Bot.DBDataAccess
+namespace Bot.DataAccess
 {
     public class DBDataAccess : IDBDataAccess
     {

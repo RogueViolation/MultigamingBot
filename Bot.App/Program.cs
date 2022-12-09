@@ -20,7 +20,7 @@ using MultigamingBot.Bot;
 using Microsoft.Extensions.Configuration;
 using System.Threading;
 using MultigamingBot.Configuration;
-using Bot.DBDataAccess;
+using Bot.DataAccess;
 using Bot.Utilities;
 
 namespace MultigamingBot

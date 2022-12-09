@@ -11,7 +11,7 @@ using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
-using Bot.DBDataAccess;
+using Bot.DataAccess;
 using Bot.Utilities;
 using System.Net.Http;
 using MultigamingBot.Configuration;

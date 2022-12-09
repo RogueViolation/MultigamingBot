@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bot.DBDataAccess\Bot.DBDataAccess.csproj" />
+    <ProjectReference Include="..\Bot.DBDataAccess\Bot.DataAccess.csproj" />
     <ProjectReference Include="..\Bot.Utilities\Bot.Utilities.csproj" />
   </ItemGroup>
 

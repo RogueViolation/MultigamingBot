@@ -5,9 +5,9 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultigamingBot", "Bot.App\MultigamingBot.csproj", "{FF673F88-4AF1-42F6-904D-E76F1AA536F8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot.DBDataAccess", "Bot.DBDataAccess\Bot.DBDataAccess.csproj", "{5996FF8E-0DFA-4107-A007-2C5E3023D1DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot.DataAccess", "Bot.DBDataAccess\Bot.DataAccess.csproj", "{5996FF8E-0DFA-4107-A007-2C5E3023D1DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.Utilities", "Bot.Utilities\Bot.Utilities.csproj", "{B8D4E300-91AB-4BF2-B958-6A2D31D3D07E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot.Utilities", "Bot.Utilities\Bot.Utilities.csproj", "{B8D4E300-91AB-4BF2-B958-6A2D31D3D07E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

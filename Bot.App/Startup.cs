@@ -1,4 +1,4 @@
-﻿using Bot.DBDataAccess;
+﻿using Bot.DataAccess;
 using Bot.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

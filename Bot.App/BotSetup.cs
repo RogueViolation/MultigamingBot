@@ -16,7 +16,7 @@ using System.Text.RegularExpressions;
 using MultigamingBot.DTO;
 using MultigamingBot.Bot;
 using MultigamingBot.Configuration;
-using Bot.DBDataAccess;
+using Bot.DataAccess;
 using Bot.Utilities;
 
 namespace MultigamingBot

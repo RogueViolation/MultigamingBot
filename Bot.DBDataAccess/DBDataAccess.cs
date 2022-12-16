@@ -31,6 +31,7 @@ namespace Bot.DataAccess
                     //@l_code_source nvarchar(50)
                     var cmd = new SqlCommand("dbo.uspAddCode", connection);
                     cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@l_id", SqlDbType.NVarChar, 50).Value = Guid.NewGuid().ToString();
                     cmd.Parameters.Add("@l_code", SqlDbType.NVarChar, 50).Value = code;
                     cmd.Parameters.Add("@l_code_content1", SqlDbType.NVarChar, 50).Value = dataField1;
                     cmd.Parameters.Add("@l_code_content2", SqlDbType.NVarChar, 50).Value = dataField2;

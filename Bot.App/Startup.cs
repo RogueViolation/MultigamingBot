@@ -39,6 +39,8 @@ namespace MultigamingBot
             services.AddSingleton<IBotCommands, BotCommands>()
                 .AddTransient<IConfigurationReader, ConfigurationReader>()
                 .AddTransient<IDBDataAccess, DBDataAccess>()
+                .AddTransient<IHttpDataAccess, HttpDataAccess>()
+                .AddTransient<IHttpClientProvider, HttpClientProvider>()
                 .AddSingleton<IDiscordSocketClientProvider, DiscordSocketClientProvider>();
         }
     }

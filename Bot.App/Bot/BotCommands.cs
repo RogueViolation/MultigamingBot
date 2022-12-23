@@ -169,20 +169,11 @@ namespace MultigamingBot.Bot
 
         public async Task MessageReceivedAsync(SocketMessage msg)
         {
-            var message = msg as SocketUserMessage;
-            Console.WriteLine($"boop {msg.Content}");
-            //443484727236624384
-            var messages = _client.GetGuild(443484727236624384).GetTextChannel(751866189306921111).GetMessagesAsync(50).Flatten();
-            var asd = messages.ToEnumerable().ToList();
-            //443484727236624385
-
             if (msg.Author.Id == 751866327374889161 || msg.Author.Id == 1033139170845139045 || msg.Author.Id == 174623298146009089)
             {
                 await RedeemCodeAutomaticAsync(msg);
             }
             await Task.CompletedTask;
-
-
         }
 
         public async Task SlashCommandHandlerAsync(SocketSlashCommand command)

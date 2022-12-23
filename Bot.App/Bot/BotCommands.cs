@@ -55,39 +55,8 @@ namespace MultigamingBot.Bot
         public async Task HandleRedeemCommandAsync(SocketSlashCommand command)
         {
             var guildUser = command.User;
-            WebRequest request = WebRequest.Create("https://api.nightriderz.world/gateway.php");
-            request.Method = "POST";
-            request.ContentType = "application/json";
-            request.Headers.Add("Sec-Ch-Ua", "\"(Not(A:Brand\"; v = \"8\", \"Chromium\"; v = \"99\"");
-            request.Headers.Add("Easharpptr-P", _config.GetSection("Easharpptr-P"));
-            request.Headers.Add("Sec-Ch-Ua-Mobile", "?0");
-            request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36");
-            request.Headers.Add("Accept", "application/json");
-            request.Headers.Add("Easharpptr-U", _config.GetSection("Easharpptr-U"));
-            request.Headers.Add("Sec-Ch-Ua-Platform", "Windows");
-            request.Headers.Add("Origin", "https://nightriderz.world");
-            request.Headers.Add("Sec-Fetch-Site", "same-site");
-            request.Headers.Add("Sec-Fetch-Mode", "cors");
-            request.Headers.Add("Sec-Fetch-Dest", "empty");
-            request.Headers.Add("Referer", "https://nightriderz.world/");
-            request.Headers.Add("Accept-Language", "en-US,en;q=0.9");
-            string postData = $"{{\"serviceName\":\"account\",\"methodName\":\"redeemcode\",\"parameters\":[\"{command.Data.Options.First().Value}\"]}}";
-            byte[] byteArray = Encoding.UTF8.GetBytes(postData);
-            request.ContentLength = byteArray.Length;
-            Stream dataStream = request.GetRequestStream();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
-            Console.WriteLine(request);
-            WebResponse response = request.GetResponse();
-            Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-            dataStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(dataStream);
-            string responseFromServer = reader.ReadToEnd();
-            NRZResponse data = JsonConvert.DeserializeObject<NRZResponse>(responseFromServer);
-            Console.WriteLine(responseFromServer);
-            reader.Close();
-            dataStream.Close();
-            response.Close();
+            var data = await Task.Run(() => DoCodeRedeemRequest(command.Data.Options.First().Value.ToString()));
+            
             var embedBuiler = new EmbedBuilder();
             switch (data.state)
             {
@@ -120,6 +89,7 @@ namespace MultigamingBot.Bot
             }
 
             // Now, Let's respond with the embed.
+            ProcessCodeMessage(data.message, data.state, command.Data.Options.First().Value.ToString(), guildUser.Id);
             await command.RespondAsync(embed: embedBuiler.Build());
         }
 
@@ -132,26 +102,8 @@ namespace MultigamingBot.Bot
                 var codeRedeemable = msg.Content.Substring(msg.Content.LastIndexOf("Copy this code ") + "Copy this code ".Length, 19);
 
                 await Task.Delay(30000); //Add delay because when code is published it is not still active
-                HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Add("Sec-Ch-Ua", "\"(Not(A:Brand\"; v = \"8\", \"Chromium\"; v = \"99\"");
-                client.DefaultRequestHeaders.Add("Easharpptr-P", _config.GetSection("Easharpptr-P"));
-                client.DefaultRequestHeaders.Add("Sec-Ch-Ua-Mobile", "?0");
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36");
-                client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.DefaultRequestHeaders.Add("Easharpptr-U", _config.GetSection("Easharpptr-U"));
-                client.DefaultRequestHeaders.Add("Sec-Ch-Ua-Platform", "Windows");
-                client.DefaultRequestHeaders.Add("Origin", "https://nightriderz.world");
-                client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-site");
-                client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
-                client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
-                client.DefaultRequestHeaders.Add("Referer", "https://nightriderz.world/");
-                client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.9");
+                var data = await Task.Run(() => DoCodeRedeemRequest(codeRedeemable));
 
-                var response = await client.PostAsync("https://api.nightriderz.world/gateway.php", new StringContent($"{{\"serviceName\":\"account\",\"methodName\":\"redeemcode\",\"parameters\":[\"{codeRedeemable}\"]}}", Encoding.UTF8, "application/json"));
-                var text = response.Content.ReadAsStringAsync().Result;
-
-                NRZResponse data = JsonConvert.DeserializeObject<NRZResponse>(response.Content.ReadAsStringAsync().Result);
-                //response.Close();
                 switch (data.state)
                 {
                     case "ok":
@@ -183,7 +135,7 @@ namespace MultigamingBot.Bot
                 }
 
                 await _client.GetGuild(443484727236624384).GetTextChannel(751866189306921111).SendMessageAsync(embed: embedBuiler.Build());
-                await ProcessCodeMessage(data.message, data.state, codeRedeemable, guildUser.Id);
+                ProcessCodeMessage(data.message, data.state, codeRedeemable, guildUser.Id);
             }
             catch (Exception e)
             {
@@ -267,6 +219,30 @@ namespace MultigamingBot.Bot
             .WithDescription("Redeem NIGHTRIDERZ WORLD code.")
             .AddOption("code", ApplicationCommandOptionType.String, "Enter the code to be redeemed", isRequired: true);
             await guild.CreateApplicationCommandAsync(guildCommand.Build());
+        }
+
+        private async Task<NRZResponse> DoCodeRedeemRequest(string codeRedeemable)
+        {
+            Dictionary<string, string> headers = new Dictionary<string, string>
+                {
+                    { "Sec-Ch-Ua", "\"(Not(A:Brand\"; v = \"8\", \"Chromium\"; v = \"99\""},
+                    {"Easharpptr-P", _config.GetSection("Easharpptr-P") },
+                    {"Sec-Ch-Ua-Mobile", "?0"},
+                    {"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"},
+                    {"Accept", "application/json"},
+                    {"Easharpptr-U", _config.GetSection("Easharpptr-U")},
+                    {"Sec-Ch-Ua-Platform", "Windows"},
+                    {"Origin", "https://nightriderz.world"},
+                    {"Sec-Fetch-Site", "same-site"},
+                    {"Sec-Fetch-Mode", "cors"},
+                    {"Sec-Fetch-Dest", "empty"},
+                    {"Referer", "https://nightriderz.world/"},
+                    {"Accept-Language", "en-US,en;q=0.9"},
+                };
+
+            return _httpDataAccess.HttpClientPostJson<NRZResponse>("https://api.nightriderz.world/gateway.php", $"{{\"serviceName\":\"account\",\"methodName\":\"redeemcode\",\"parameters\":[\"{codeRedeemable}\"]}}", headers);
+
+
         }
     }
 }

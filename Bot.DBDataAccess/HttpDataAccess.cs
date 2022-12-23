@@ -13,9 +13,9 @@ namespace Bot.DataAccess
 {
     public class HttpDataAccess : IHttpDataAccess
     {
-        public readonly ILogger<HttpDataAccess> _logger;
-        public readonly IHttpClientProvider _httpClientProvider;
-        public readonly HttpClient _httpClient;
+        private readonly ILogger<HttpDataAccess> _logger;
+        private readonly IHttpClientProvider _httpClientProvider;
+        private readonly HttpClient _httpClient;
         public HttpDataAccess(ILogger<HttpDataAccess> logger, IHttpClientProvider httpClientProvider)
         {
             _logger = logger;

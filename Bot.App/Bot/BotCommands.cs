@@ -24,12 +24,14 @@ namespace MultigamingBot.Bot
         private readonly ILogger<BotCommands> _logger;
         private readonly IDBDataAccess _dataAccess;
         private readonly IConfigurationReader _config;
-        public BotCommands(ILogger<BotCommands> logger, IDBDataAccess dataAccess, IDiscordSocketClientProvider clientProvider, IConfigurationReader config)
+        private readonly IHttpDataAccess _httpDataAccess;
+        public BotCommands(ILogger<BotCommands> logger, IDBDataAccess dataAccess, IDiscordSocketClientProvider clientProvider, IConfigurationReader config, IHttpDataAccess httpDataAccess)
         {
             _logger = logger;
             _dataAccess = dataAccess;
             _config = config;
             _client = clientProvider.ProvideDiscordSocketClient();
+            _httpDataAccess = httpDataAccess;
         }
         public async Task HandleListRoleCommandAsync(SocketSlashCommand command)
         {
@@ -129,7 +131,7 @@ namespace MultigamingBot.Bot
                 var guildUser = msg.Author;
                 var codeRedeemable = msg.Content.Substring(msg.Content.LastIndexOf("Copy this code ") + "Copy this code ".Length, 19);
 
-                await Task.Delay(1000); //Add delay because when code is published it is not still active
+                await Task.Delay(30000); //Add delay because when code is published it is not still active
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Add("Sec-Ch-Ua", "\"(Not(A:Brand\"; v = \"8\", \"Chromium\"; v = \"99\"");
                 client.DefaultRequestHeaders.Add("Easharpptr-P", "267411");
@@ -240,6 +242,9 @@ namespace MultigamingBot.Bot
                     break;
                 case "nrz-redeem":
                     await HandleRedeemCommandAsync(command);
+                    break;
+                case "nrz-codes":
+
                     break;
             }
         }

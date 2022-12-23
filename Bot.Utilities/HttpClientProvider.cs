@@ -9,7 +9,7 @@ namespace Bot.Utilities
 {
     public class HttpClientProvider : IHttpClientProvider
     {
-        public readonly HttpClient _httpClient;
+        private readonly HttpClient _httpClient;
 
         public HttpClientProvider() 
         {

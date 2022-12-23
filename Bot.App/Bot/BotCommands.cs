@@ -134,11 +134,11 @@ namespace MultigamingBot.Bot
                 await Task.Delay(30000); //Add delay because when code is published it is not still active
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Add("Sec-Ch-Ua", "\"(Not(A:Brand\"; v = \"8\", \"Chromium\"; v = \"99\"");
-                client.DefaultRequestHeaders.Add("Easharpptr-P", "267411");
+                client.DefaultRequestHeaders.Add("Easharpptr-P", _config.GetSection("Easharpptr-P"));
                 client.DefaultRequestHeaders.Add("Sec-Ch-Ua-Mobile", "?0");
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.DefaultRequestHeaders.Add("Easharpptr-U", "c93ef9261bc46ff3.5709d8a4afc037aa0ea2a24b03a6d1f7fdf16723.9l9tMcZYlswEDkweb/LdXg==");
+                client.DefaultRequestHeaders.Add("Easharpptr-U", _config.GetSection("Easharpptr-U"));
                 client.DefaultRequestHeaders.Add("Sec-Ch-Ua-Platform", "Windows");
                 client.DefaultRequestHeaders.Add("Origin", "https://nightriderz.world");
                 client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-site");

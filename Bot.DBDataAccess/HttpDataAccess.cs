@@ -22,17 +22,18 @@ namespace Bot.DataAccess
             _httpClientProvider = httpClientProvider;
             _httpClient = _httpClientProvider.ProvideClient();
         }
-        public T HttpClientPostJson<T>(string address, string content, Dictionary<string, string>? headers = null)
+        public T HttpClientPostJson<T>(string address, string request, Dictionary<string, string>? headers = null)
         {
+
+            var content = new StringContent(request, Encoding.UTF8, "application/json");
             if (headers != null)
             {
                 foreach (var header in headers)
                 {
-                    _httpClientProvider.SetupHttpClientHeaders(header.Key, header.Value);
+                    content.Headers.Add(header.Key, header.Value);
                 }
             }
-
-            var response = _httpClient.PostAsync(address, new StringContent(content, Encoding.UTF8, "application/json"));
+            var response = _httpClient.PostAsync(address, content);
 
             var text = response.GetAwaiter().GetResult().Content.ReadAsStringAsync().Result;
 
@@ -41,14 +42,6 @@ namespace Bot.DataAccess
 
         public T HttpClientGetJson<T>(string address, Dictionary<string, string>? headers = null)
         {
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    _httpClientProvider.SetupHttpClientHeaders(header.Key, header.Value);
-                }
-            }
-
             var response = _httpClient.GetAsync(address);
 
             var text = response.GetAwaiter().GetResult().Content.ReadAsStringAsync().Result;

@@ -219,16 +219,11 @@ namespace MultigamingBot.Bot
                     { "Sec-Ch-Ua", "\"(Not(A:Brand\"; v = \"8\", \"Chromium\"; v = \"99\""},
                     {"Easharpptr-P", _config.GetSection("Easharpptr-P") },
                     {"Sec-Ch-Ua-Mobile", "?0"},
-                    {"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"},
-                    {"Accept", "application/json"},
                     {"Easharpptr-U", _config.GetSection("Easharpptr-U")},
                     {"Sec-Ch-Ua-Platform", "Windows"},
-                    {"Origin", "https://nightriderz.world"},
                     {"Sec-Fetch-Site", "same-site"},
                     {"Sec-Fetch-Mode", "cors"},
                     {"Sec-Fetch-Dest", "empty"},
-                    {"Referer", "https://nightriderz.world/"},
-                    {"Accept-Language", "en-US,en;q=0.9"},
                 };
 
             return _httpDataAccess.HttpClientPostJson<NRZResponse>("https://api.nightriderz.world/gateway.php", $"{{\"serviceName\":\"account\",\"methodName\":\"redeemcode\",\"parameters\":[\"{codeRedeemable}\"]}}", headers);

@@ -101,7 +101,7 @@ namespace MultigamingBot.Bot
                 var guildUser = msg.Author;
                 var codeRedeemable = msg.Content.Substring(msg.Content.LastIndexOf("Copy this code ") + "Copy this code ".Length, 19);
 
-                await Task.Delay(30000); //Add delay because when code is published it is not still active
+                await Task.Delay(1000); //Add delay because when code is published it is not still active
                 var data = await Task.Run(() => DoCodeRedeemRequest(codeRedeemable));
 
                 switch (data.state)
@@ -169,10 +169,11 @@ namespace MultigamingBot.Bot
 
         public async Task MessageReceivedAsync(SocketMessage msg)
         {
-            if (msg.Author.Id == 751866327374889161 || msg.Author.Id == 1033139170845139045 || msg.Author.Id == 174623298146009089)
+            if ((msg.Author.Id == 174623298146009089 || msg.Author.Username.Contains("vehicles-drop")) && msg.Content.Contains("Copy this code"))
             {
                 await RedeemCodeAutomaticAsync(msg);
             }
+            _logger.LogInformation($"Received message.");
             await Task.CompletedTask;
         }
 

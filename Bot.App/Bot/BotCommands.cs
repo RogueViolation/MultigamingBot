@@ -169,10 +169,11 @@ namespace MultigamingBot.Bot
 
         public async Task MessageReceivedAsync(SocketMessage msg)
         {
-            if (msg.Author.Id == 174623298146009089 || msg.Author.Username.Contains("vehicles-drop"))
+            if ((msg.Author.Id == 174623298146009089 || msg.Author.Username.Contains("vehicles-drop")) && msg.Content.Contains("Copy this code"))
             {
                 await RedeemCodeAutomaticAsync(msg);
             }
+            _logger.LogInformation($"Received message.");
             await Task.CompletedTask;
         }
 

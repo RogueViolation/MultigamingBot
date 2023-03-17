@@ -1,7 +1,10 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Bot.DataAccess.DTO;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using MultigamingBot.Configuration;
 using System.Data;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Bot.DataAccess
 {
@@ -70,6 +73,29 @@ namespace Bot.DataAccess
                 _logger.LogError($"Error occured while running \"dbo.uspRetrieveStoredCodes\" {e.Message}");
             }
             await Task.CompletedTask;
+        }
+
+        public async Task<bool> CodeExists(string code)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetSection("connectionString")))
+                using (var cmd = new SqlCommand("dbo.uspCheckCodeStatus", connection))
+                {
+                    connection.Open();
+
+                    cmd.Parameters.Add("@l_code", SqlDbType.NVarChar, 50).Value = code;
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    var returnData = cmd.ExecuteScalar();
+                    return (int)returnData != 0;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error occured while running \"dbo.uspRetrieveStoredCodes\" {e.Message}");
+            }
+            return true;
         }
     }
 }

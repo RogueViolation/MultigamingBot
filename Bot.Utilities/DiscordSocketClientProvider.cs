@@ -23,7 +23,7 @@ namespace Bot.Utilities
         {
             var config = new DiscordSocketConfig()
             {
-                GatewayIntents = GatewayIntents.All
+                GatewayIntents = GatewayIntents.MessageContent
             };
             var client = new DiscordSocketClient(config);
 

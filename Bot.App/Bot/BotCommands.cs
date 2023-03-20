@@ -16,6 +16,7 @@ using Bot.Utilities;
 using System.Net.Http;
 using MultigamingBot.Configuration;
 using System.Threading;
+using Bot.OSRSHiscores;
 
 namespace MultigamingBot.Bot
 {
@@ -26,13 +27,15 @@ namespace MultigamingBot.Bot
         private readonly IDBDataAccess _dataAccess;
         private readonly IConfigurationReader _config;
         private readonly IHttpDataAccess _httpDataAccess;
-        public BotCommands(ILogger<BotCommands> logger, IDBDataAccess dataAccess, IDiscordSocketClientProvider clientProvider, IConfigurationReader config, IHttpDataAccess httpDataAccess)
+        private readonly IOSRSHiscoresHelper _osrsHiscoresHelper;
+        public BotCommands(ILogger<BotCommands> logger, IDBDataAccess dataAccess, IDiscordSocketClientProvider clientProvider, IConfigurationReader config, IHttpDataAccess httpDataAccess, IOSRSHiscoresHelper osrsHiscoresHelper)
         {
             _logger = logger;
             _dataAccess = dataAccess;
             _config = config;
             _client = clientProvider.ProvideDiscordSocketClient();
             _httpDataAccess = httpDataAccess;
+            _osrsHiscoresHelper = osrsHiscoresHelper;
         }
         public async Task HandleListRoleCommandAsync(SocketSlashCommand command)
         {
@@ -206,7 +209,9 @@ namespace MultigamingBot.Bot
                     await HandleRedeemCommandAsync(command);
                     break;
                 case "nrz-codes":
-
+                    break;
+                case "osrs":
+                    _osrsHiscoresHelper.CheckPlayerInWOM(command.Data.Options.First().Value.ToString());
                     break;
             }
         }
@@ -229,6 +234,12 @@ namespace MultigamingBot.Bot
             .WithDescription("Redeem NIGHTRIDERZ WORLD code.")
             .AddOption("code", ApplicationCommandOptionType.String, "Enter the code to be redeemed", isRequired: true);
             await guild.CreateApplicationCommandAsync(guildCommand.Build());
+
+            guildCommand = new SlashCommandBuilder()
+            .WithName("osrs")
+            .WithDescription("TEST COMMAND DO NOT INTO PRODUCTION")
+            .AddOption("name", ApplicationCommandOptionType.String, "name", isRequired: true);
+            await guild.CreateApplicationCommandAsync(guildCommand.Build());
         }
 
         private async Task<NRZResponse> DoCodeRedeemRequest(string codeRedeemable)
@@ -246,8 +257,17 @@ namespace MultigamingBot.Bot
                 };
 
             return _httpDataAccess.HttpClientPostJson<NRZResponse>("https://api.nightriderz.world/gateway.php", $"{{\"serviceName\":\"account\",\"methodName\":\"redeemcode\",\"parameters\":[\"{codeRedeemable}\"]}}", headers);
+        }
 
 
+
+        public async Task PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
+        {
+            while (true)
+            {
+                //await Exit();
+                await Task.Delay(interval, cancellationToken);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Bot.DataAccess;
+using Bot.OSRSHiscores;
 using Bot.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,7 +42,8 @@ namespace MultigamingBot
                 .AddTransient<IDBDataAccess, DBDataAccess>()
                 .AddTransient<IHttpDataAccess, HttpDataAccess>()
                 .AddTransient<IHttpClientProvider, HttpClientProvider>()
-                .AddSingleton<IDiscordSocketClientProvider, DiscordSocketClientProvider>();
+                .AddSingleton<IDiscordSocketClientProvider, DiscordSocketClientProvider>()
+                .AddTransient<IOSRSHiscoresHelper, OSRSHiscoresHelper>();
         }
     }
 

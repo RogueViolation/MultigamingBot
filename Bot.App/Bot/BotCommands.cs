@@ -209,6 +209,7 @@ namespace MultigamingBot.Bot
                     await HandleRedeemCommandAsync(command);
                     break;
                 case "nrz-codes":
+
                     break;
                 case "osrs":
                     _osrsHiscoresHelper.CheckPlayerInWOM(command.Data.Options.First().Value.ToString());

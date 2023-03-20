@@ -97,5 +97,29 @@ namespace Bot.DataAccess
             }
             return true;
         }
+
+        public int AddUserToOSRSUsers(int id, string name, string gamemode) 
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetSection("connectionString")))
+                using (var cmd = new SqlCommand("dbo.uspAddUserToOSRSUsers", connection))
+                {
+                    connection.Open();
+
+                    cmd.Parameters.Add("@l_id", SqlDbType.Int).Value = id;
+                    cmd.Parameters.Add("@l_gamemode", SqlDbType.NVarChar, 50).Value = gamemode;
+                    cmd.Parameters.Add("@l_displayname", SqlDbType.NVarChar, 50).Value = name;
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    return cmd.ExecuteNonQuery()/2;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error occured while running \"dbo.uspAddUserToOSRSUsers\" {e.Message}");
+            }
+            return 0;
+        }
     }
 }

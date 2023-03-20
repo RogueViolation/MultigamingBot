@@ -13,5 +13,7 @@ namespace Bot.DataAccess
         Task RetrieveStoredCodes();
 
         Task<bool> CodeExists(string code);
+
+        int AddUserToOSRSUsers(int id, string name, string gamemode);
     }
 }

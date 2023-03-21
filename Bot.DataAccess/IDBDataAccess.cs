@@ -15,5 +15,7 @@ namespace Bot.DataAccess
         Task<bool> CodeExists(string code);
 
         int AddUserToOSRSUsers(int id, string name, string gamemode);
+
+        bool UserExistsInDatabase(string name);
     }
 }

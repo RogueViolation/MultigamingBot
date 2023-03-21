@@ -28,6 +28,7 @@ namespace MultigamingBot.Bot
         private readonly IConfigurationReader _config;
         private readonly IHttpDataAccess _httpDataAccess;
         private readonly IOSRSHiscoresHelper _osrsHiscoresHelper;
+        private readonly EmbedBuilder embedBuilder;
         public BotCommands(ILogger<BotCommands> logger, IDBDataAccess dataAccess, IDiscordSocketClientProvider clientProvider, IConfigurationReader config, IHttpDataAccess httpDataAccess, IOSRSHiscoresHelper osrsHiscoresHelper)
         {
             _logger = logger;
@@ -36,6 +37,7 @@ namespace MultigamingBot.Bot
             _client = clientProvider.ProvideDiscordSocketClient();
             _httpDataAccess = httpDataAccess;
             _osrsHiscoresHelper = osrsHiscoresHelper;
+            embedBuilder = new EmbedBuilder();
         }
         public async Task HandleListRoleCommandAsync(SocketSlashCommand command)
         {
@@ -58,16 +60,16 @@ namespace MultigamingBot.Bot
 
         public async Task HandleRedeemCommandAsync(SocketSlashCommand command)
         {
+            var embedBuilder = new EmbedBuilder();
             var guildUser = command.User;
             if (!await _dataAccess.CodeExists(command.Data.Options.First().Value.ToString()))
             {
                 var data = await Task.Run(() => DoCodeRedeemRequest(command.Data.Options.First().Value.ToString()));
 
-                var embedBuiler = new EmbedBuilder();
                 switch (data.state)
                 {
                     case "success":
-                        embedBuiler
+                        embedBuilder
                             .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
                             .WithTitle("NRZ Code Redeem")
                             .AddField(data.state.ToUpper(), data.message)
@@ -75,7 +77,7 @@ namespace MultigamingBot.Bot
                             .WithCurrentTimestamp();
                         break;
                     case "error":
-                        embedBuiler
+                        embedBuilder
                             .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
                             .WithTitle("NRZ Code Redeem failed")
                             .AddField(data.state.ToUpper(), data.message)
@@ -83,7 +85,7 @@ namespace MultigamingBot.Bot
                             .WithCurrentTimestamp();
                         break;
                     default:
-                        embedBuiler
+                        embedBuilder
                             .WithAuthor(guildUser.ToString(), guildUser.GetAvatarUrl() ?? guildUser.GetDefaultAvatarUrl())
                             .WithTitle("NRZ Code Redeem fallback")
                             .AddField("Command fallback", $"Something went wrong while redeeming the code.")
@@ -96,7 +98,7 @@ namespace MultigamingBot.Bot
 
                 // Now, Let's respond with the embed.
                 ProcessCodeMessage(data.message, data.state, command.Data.Options.First().Value.ToString(), guildUser.Id);
-                await command.RespondAsync(embed: embedBuiler.Build());
+                await command.RespondAsync(embed: embedBuilder.Build());
             }
         }
 
@@ -104,7 +106,7 @@ namespace MultigamingBot.Bot
         {
             try
             {
-                var embedBuiler = new EmbedBuilder();
+                var embedBuilder = new EmbedBuilder();
                 var guildUser = msg.Author;
                 var codeRedeemable = msg.Content.Substring(msg.Content.LastIndexOf("Copy this code ") + "Copy this code ".Length, 19);
 
@@ -116,7 +118,7 @@ namespace MultigamingBot.Bot
                     switch (data.state)
                     {
                         case "ok":
-                            embedBuiler
+                            embedBuilder
                                 .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
                                 .WithTitle("NRZ Code Redeem")
                                 .AddField(data.state.ToUpper(), Regex.Replace(data.message, "<.*?>", String.Empty))
@@ -124,7 +126,7 @@ namespace MultigamingBot.Bot
                                 .WithCurrentTimestamp();
                             break;
                         case "error":
-                            embedBuiler
+                            embedBuilder
                                 .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
                                 .WithTitle("NRZ Code Redeem failed")
                                 .AddField(data.state.ToUpper(), data.message)
@@ -132,7 +134,7 @@ namespace MultigamingBot.Bot
                                 .WithCurrentTimestamp();
                             break;
                         default:
-                            embedBuiler
+                            embedBuilder
                                 .WithAuthor(guildUser.ToString(), guildUser.GetAvatarUrl() ?? guildUser.GetDefaultAvatarUrl())
                                 .WithTitle("NRZ Code Redeem fallback")
                                 .AddField("Command fallback", $"Something went wrong while redeeming the code.")
@@ -143,19 +145,19 @@ namespace MultigamingBot.Bot
                             break;
                     }
 
-                    await _client.GetGuild(443484727236624384).GetTextChannel(751866189306921111).SendMessageAsync(embed: embedBuiler.Build());
+                    await _client.GetGuild(443484727236624384).GetTextChannel(751866189306921111).SendMessageAsync(embed: embedBuilder.Build());
                     ProcessCodeMessage(data.message, data.state, codeRedeemable, guildUser.Id);
                 }
                 else
                 {
-                    embedBuiler
+                    embedBuilder
                         .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
                         .WithTitle("NRZ Code Redeem fallback")
                         .AddField("Command fallback", "Code already exists in DB!")
                         .WithColor(Color.Red)
                         .WithCurrentTimestamp();
 
-                    await _client.GetGuild(443484727236624384).GetTextChannel(751866189306921111).SendMessageAsync(embed: embedBuiler.Build());
+                    await _client.GetGuild(443484727236624384).GetTextChannel(751866189306921111).SendMessageAsync(embed: embedBuilder.Build());
                 }
             }
             catch (Exception e)
@@ -212,7 +214,7 @@ namespace MultigamingBot.Bot
 
                     break;
                 case "osrs":
-                    _osrsHiscoresHelper.CheckPlayerInWOM(command.Data.Options.First().Value.ToString());
+                    await HandleAddUserCommand(command);
                     break;
             }
         }
@@ -258,6 +260,43 @@ namespace MultigamingBot.Bot
                 };
 
             return _httpDataAccess.HttpClientPostJson<NRZResponse>("https://api.nightriderz.world/gateway.php", $"{{\"serviceName\":\"account\",\"methodName\":\"redeemcode\",\"parameters\":[\"{codeRedeemable}\"]}}", headers);
+        }
+
+        private async Task HandleAddUserCommand(SocketSlashCommand command)
+        {
+            var embedBuilder = new EmbedBuilder();
+            var returnCode = await _osrsHiscoresHelper.TryAddUserToOSRSUsers(command.Data.Options.First().Value.ToString());
+
+            switch (returnCode)
+            {
+                case 0:
+                    embedBuilder
+                        .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
+                        .WithTitle("Add user to OSRS Player DB")
+                        .AddField("Insert failed!", "Add player failed!")
+                        .WithColor(Color.Red)
+                        .WithCurrentTimestamp();
+                    await command.RespondAsync(embed: embedBuilder.Build());
+                    break;
+                case -99:
+                    embedBuilder
+                        .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
+                        .WithTitle("Add user to OSRS Player DB")
+                        .AddField("Insert failed!", "User already exists!")
+                        .WithColor(Color.Gold)
+                        .WithCurrentTimestamp();
+                    await command.RespondAsync(embed: embedBuilder.Build());
+                    break;
+                default:
+                    embedBuilder
+                        .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
+                        .WithTitle("Add user to OSRS Player DB")
+                        .AddField("Successfully added!", "User was successfully added!")
+                        .WithColor(Color.Green)
+                        .WithCurrentTimestamp();
+                    await command.RespondAsync(embed: embedBuilder.Build());
+                    break;
+            }
         }
 
 

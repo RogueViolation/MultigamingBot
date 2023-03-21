@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bot.DataAccess\Bot.DataAccess.csproj" />
+    <ProjectReference Include="..\Bot.Utilities\Bot.Utilities.csproj" />
   </ItemGroup>
 
 </Project>

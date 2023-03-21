@@ -1,5 +1,7 @@
 ﻿using Bot.DataAccess;
+using Bot.Utilities;
 using Bot.DataAccess.DTO;
+using Bot.OSRSHiscores.DataObjects;
 using Microsoft.Extensions.Logging;
 using MultigamingBot.Configuration;
 
@@ -22,38 +24,43 @@ namespace Bot.OSRSHiscores
             _config = config;
         }
 
-        public void LookupHiscores(string username)
+        public async Task<int> TryAddUserToOSRSUsers(string username)
         {
-
+            if (_dataAccess.UserExistsInDatabase(username))
+            {
+                return -99;
+            }
+            var user = GetPlayerInWOM(username);
+            if (user == null) return -1;
+            return _dataAccess.AddUserToOSRSUsers(user.Id, user.UserName, user.GameMode);
         }
 
-        public int AddUserToOSRSUsers(int id, string username, string gamemode)
-        {
-            _logger.LogInformation("rows affected "+_dataAccess.AddUserToOSRSUsers(id,username,gamemode).ToString());
-            return 0;
-        }
-
-        public string CheckPlayerInWOM(string username)
+        private OSRSUserBasic? GetPlayerInWOM(string username)
         {
             try
             {
                 Dictionary<string, string> headers = new Dictionary<string, string>
-            {
-                { "x-api-key", _config.GetSection("WOMkey")},
-                { "userAgent", _config.GetSection("DiscordName")}
-            };
-                var Uri = new UriBuilder(_womHost);
-                Uri.Path = "/players/search";
-                var asd = _httpDataAccess.HttpClientGetJson<List<WOMLookupDTO>>(_womHost + "/players/search" + $"?username={username}", headers);
-                _logger.LogInformation(asd[0].DisplayName);
-                AddUserToOSRSUsers(asd[0].Id, asd[0].DisplayName, asd[0].Type);
-                return "";
+                {
+                    { "x-api-key", _config.GetSection("WOMkey")},
+                    { "userAgent", _config.GetSection("DiscordName")}
+                };
+                var userData = _httpDataAccess.HttpClientGetJson<List<WOMLookupDTO>>(_womHost + "/players/search" + $"?username={username}", headers);
+                return new OSRSUserBasic {
+                    Id = userData.FirstOrDefault().Id,
+                    UserName = userData.FirstOrDefault().DisplayName,
+                    GameMode = userData.FirstOrDefault().Type
+                };
             }
             catch (Exception e)
             {
-                _logger.LogInformation(e.Message);
+                _logger.LogInformation($"GetPlayerInWOM failed. {e.Message}");
             }
-            return "";
+            return null;
+        }
+
+        private void LookupHiscores(string username)
+        {
+
         }
     }
 }

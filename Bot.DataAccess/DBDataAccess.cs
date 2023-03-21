@@ -87,8 +87,7 @@ namespace Bot.DataAccess
                     cmd.Parameters.Add("@l_code", SqlDbType.NVarChar, 50).Value = code;
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    var returnData = cmd.ExecuteScalar();
-                    return (int)returnData != 0;
+                    return ((int)cmd.ExecuteScalar()) != 0;
                 }
             }
             catch (Exception e)
@@ -120,6 +119,28 @@ namespace Bot.DataAccess
                 _logger.LogError($"Error occured while running \"dbo.uspAddUserToOSRSUsers\" {e.Message}");
             }
             return 0;
+        }
+
+        public bool UserExistsInDatabase(string name)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetSection("connectionString")))
+                using (var cmd = new SqlCommand("dbo.uspUserExistsInDatabase", connection))
+                {
+                    connection.Open();
+
+                    cmd.Parameters.Add("@l_displayname", SqlDbType.NVarChar, 50).Value = name;
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    return ((int)cmd.ExecuteScalar()) != 0;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error occured while running \"dbo.uspUserExistsInDatabase\" {e.Message}");
+            }
+            return true;
         }
     }
 }

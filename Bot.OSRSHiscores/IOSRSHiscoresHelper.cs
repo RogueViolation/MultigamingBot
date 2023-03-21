@@ -8,7 +8,6 @@ namespace Bot.OSRSHiscores
 {
     public interface IOSRSHiscoresHelper
     {
-        void LookupHiscores(string username);
-        string CheckPlayerInWOM(string username);
+        Task<int> TryAddUserToOSRSUsers(string username);
     }
 }

@@ -37,7 +37,9 @@ namespace Bot.OSRSHiscores
                 case 1:
                     return "User already exists!";
                 case 0:
-                    return await Task.FromResult(_dataAccess.AddUserToOSRSUsers(user.Id, user.UserName, user.GameMode)) == 1 ? "User successfully added!" : "Failed to add user to DB!";
+                    return await Task.FromResult(_dataAccess.AddUserToOSRSUsers(user.Id, user.UserName, user.GameMode)) == 1 
+                        ? "User successfully added!" 
+                        : "Failed to add user to DB!";
                 default:
                     return "Failed to fetch userdata from WOM!";
             }   
@@ -53,6 +55,7 @@ namespace Bot.OSRSHiscores
                     { "x-api-key", _config.GetSection("WOMkey")},
                     { "userAgent", _config.GetSection("DiscordName")}
                 };
+                _logger.LogInformation($"Getting OSRS User data from WOM for user {username}.");
                 userData = _httpDataAccess.HttpClientGetJson<List<WOMLookupDTO>>(_womHost + "/players/search" + $"?username={username}", headers).FirstOrDefault();
                 var basicData = new OSRSUserBasic();
                 if (userData == null)
@@ -72,11 +75,6 @@ namespace Bot.OSRSHiscores
             }
         }
         
-        //private int CheckUserNameChange(int userId, string username)
-        //{
-
-        //}
-        //
         private void LookupHiscores(string username)
         {
             try

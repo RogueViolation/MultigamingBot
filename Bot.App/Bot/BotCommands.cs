@@ -60,6 +60,7 @@ namespace MultigamingBot.Bot
 
         public async Task HandleRedeemCommandAsync(SocketSlashCommand command)
         {
+            _logger.LogInformation($"Got a command to run NRZ code redemption, running flow.");
             var embedBuilder = new EmbedBuilder();
             var guildUser = command.User;
             if (!await _dataAccess.CodeExists(command.Data.Options.First().Value.ToString()))
@@ -106,6 +107,7 @@ namespace MultigamingBot.Bot
         {
             try
             {
+                _logger.LogInformation($"Caught automatic NRZ code redemption message, running flow.");
                 var embedBuilder = new EmbedBuilder();
                 var guildUser = msg.Author;
                 var codeRedeemable = msg.Content.Substring(msg.Content.LastIndexOf("Copy this code ") + "Copy this code ".Length, 19);
@@ -169,6 +171,7 @@ namespace MultigamingBot.Bot
         }
         private async Task ProcessCodeMessage(string message, string status, string code, ulong author)
         {
+            _logger.LogInformation($"Processing NRZ code message.");
             if (status == "ok")
             {
                 string[] dataFields = new string[3]; //Avoid bad things
@@ -247,6 +250,7 @@ namespace MultigamingBot.Bot
 
         private async Task<NRZResponse> DoCodeRedeemRequest(string codeRedeemable)
         {
+            _logger.LogInformation($"Redeeming code {codeRedeemable} in NRZ.");
             Dictionary<string, string> headers = new Dictionary<string, string>
                 {
                     {"Sec-Ch-Ua", "\"(Not(A:Brand\"; v = \"8\", \"Chromium\"; v = \"99\""},
@@ -265,6 +269,7 @@ namespace MultigamingBot.Bot
         private async Task HandleAddUserCommand(SocketSlashCommand command)
         {
             var embedBuilder = new EmbedBuilder();
+            _logger.LogInformation($"Got request to add user {command.Data.Options.First().Value.ToString()} to OSRS DB.");
             var returnMessage = await _osrsHiscoresHelper.TryAddUserToOSRSUsers(command.Data.Options.First().Value.ToString());
 
             embedBuilder
@@ -278,6 +283,7 @@ namespace MultigamingBot.Bot
 
         public async Task PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Starting periodic OSRS user check.");
             while (true)
             {
                 //await Exit();

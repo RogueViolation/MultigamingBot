@@ -37,6 +37,7 @@ namespace Bot.DataAccess
                     cmd.Parameters.Add("@l_date_redeem", SqlDbType.NVarChar, 50).Value = date;
                     cmd.Parameters.Add("@l_code_source", SqlDbType.NVarChar, 50).Value = source;
 
+                    _logger.LogInformation($"Adding redemption atempt to DB. Params: Code {code}, Data1 {dataField1}, Data2 {dataField2}, Data3 {dataField3}, Status {status}, Source {source}");
                     cmd.ExecuteNonQuery();
                     connection.Close();
                 }
@@ -104,7 +105,7 @@ namespace Bot.DataAccess
                     cmd.Parameters.Add("@l_gamemode", SqlDbType.NVarChar, 50).Value = gamemode;
                     cmd.Parameters.Add("@l_displayname", SqlDbType.NVarChar, 50).Value = name;
                     cmd.CommandType = CommandType.StoredProcedure;
-
+                    _logger.LogInformation($"Adding user to OSRS User DB. Params: ID {id}, Name {name}, Gamemode {gamemode}");
                     return cmd.ExecuteNonQuery()/2; //Runs 2 inserts in DB therefore we divide the result by 2 since 1 user gets 2 rows inserted.
                 }
             }
@@ -134,7 +135,7 @@ namespace Bot.DataAccess
                     cmd.Parameters.Add("@l_gamemode", SqlDbType.NVarChar, 50).Value = gamemode;
                     cmd.CommandType = CommandType.StoredProcedure;
                     dataAdapter.SelectCommand = cmd;
-
+                    _logger.LogInformation($"Checking if user with parameters exists in the database. Params: ID {id}, Name {name}, Gamemode {gamemode}");
                     dataAdapter.Fill(dt);
                     if (dt.Rows.Count == 0)
                     {
@@ -167,6 +168,7 @@ namespace Bot.DataAccess
                     cmd.Parameters.Add("@l_displayname", SqlDbType.NVarChar, 50).Value = name;
                     cmd.CommandType = CommandType.StoredProcedure;
 
+                    _logger.LogInformation($"Getting basic OSRS User data. Params: Name {name}");
                     var reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
@@ -182,28 +184,5 @@ namespace Bot.DataAccess
             }
             return userData;
         }
-
-        //public bool OSRSNameChangeCheck(int userId, string name)
-        //{
-        //    try
-        //    {
-        //        using (SqlConnection connection = new SqlConnection(_config.GetSection("connectionString")))
-        //        using (var cmd = new SqlCommand("dbo.uspUserExistsInDatabase", connection))
-        //        {
-        //            connection.Open();
-
-        //            cmd.Parameters.Add("@l_userid", SqlDbType.Int).Value = userId;
-        //            cmd.Parameters.Add("@l_username", SqlDbType.NVarChar, 50).Value = name;
-        //            cmd.CommandType = CommandType.StoredProcedure;
-
-        //            return ((int)cmd.ExecuteScalar()) != 0;
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError($"Error occured while running \"dbo.uspUserExistsInDatabase\" {e.Message}");
-        //    }
-        //    return userData;
-        //}
     }
 }

@@ -8,6 +8,6 @@ namespace Bot.OSRSHiscores
 {
     public interface IOSRSHiscoresHelper
     {
-        Task<int> TryAddUserToOSRSUsers(string username);
+        Task<string> TryAddUserToOSRSUsers(string username);
     }
 }

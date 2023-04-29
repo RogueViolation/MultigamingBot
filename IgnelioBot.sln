@@ -9,7 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot.Utilities", "Bot.Utilit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot.DataAccess", "Bot.DataAccess\Bot.DataAccess.csproj", "{4194955D-209D-4F50-A1CE-ADD0D91A0960}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.OSRSHiscores", "Bot.OSRSHiscores\Bot.OSRSHiscores.csproj", "{4439647F-E142-4C9F-844B-C8B16047B3E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot.OSRSHiscores", "Bot.OSRSHiscores\Bot.OSRSHiscores.csproj", "{4439647F-E142-4C9F-844B-C8B16047B3E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.Constants", "Bot.Constants\Bot.Constants.csproj", "{E9168D01-C75F-417D-B7C9-3FBFAF74CCDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.DataObjects", "Bot.DataObjects\Bot.DataObjects.csproj", "{49E5B362-EAA3-47AF-93C0-363DC47A9BED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{4439647F-E142-4C9F-844B-C8B16047B3E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4439647F-E142-4C9F-844B-C8B16047B3E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4439647F-E142-4C9F-844B-C8B16047B3E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9168D01-C75F-417D-B7C9-3FBFAF74CCDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9168D01-C75F-417D-B7C9-3FBFAF74CCDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9168D01-C75F-417D-B7C9-3FBFAF74CCDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9168D01-C75F-417D-B7C9-3FBFAF74CCDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49E5B362-EAA3-47AF-93C0-363DC47A9BED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49E5B362-EAA3-47AF-93C0-363DC47A9BED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49E5B362-EAA3-47AF-93C0-363DC47A9BED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49E5B362-EAA3-47AF-93C0-363DC47A9BED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

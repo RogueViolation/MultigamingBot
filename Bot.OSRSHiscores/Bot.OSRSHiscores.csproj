@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Bot.Constants\Bot.Constants.csproj" />
     <ProjectReference Include="..\Bot.DataAccess\Bot.DataAccess.csproj" />
+    <ProjectReference Include="..\Bot.DataObjects\Bot.DataObjects.csproj" />
     <ProjectReference Include="..\Bot.Utilities\Bot.Utilities.csproj" />
   </ItemGroup>
 

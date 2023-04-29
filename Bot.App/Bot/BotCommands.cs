@@ -265,41 +265,16 @@ namespace MultigamingBot.Bot
         private async Task HandleAddUserCommand(SocketSlashCommand command)
         {
             var embedBuilder = new EmbedBuilder();
-            var returnCode = await _osrsHiscoresHelper.TryAddUserToOSRSUsers(command.Data.Options.First().Value.ToString());
+            var returnMessage = await _osrsHiscoresHelper.TryAddUserToOSRSUsers(command.Data.Options.First().Value.ToString());
 
-            switch (returnCode)
-            {
-                case 0:
-                    embedBuilder
+            embedBuilder
                         .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
                         .WithTitle("Add user to OSRS Player DB")
-                        .AddField("Insert failed!", "Add player failed!")
+                        .AddField("User insert result", returnMessage)
                         .WithColor(Color.Red)
                         .WithCurrentTimestamp();
-                    await command.RespondAsync(embed: embedBuilder.Build());
-                    break;
-                case -99:
-                    embedBuilder
-                        .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
-                        .WithTitle("Add user to OSRS Player DB")
-                        .AddField("Insert failed!", "User already exists!")
-                        .WithColor(Color.Gold)
-                        .WithCurrentTimestamp();
-                    await command.RespondAsync(embed: embedBuilder.Build());
-                    break;
-                default:
-                    embedBuilder
-                        .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
-                        .WithTitle("Add user to OSRS Player DB")
-                        .AddField("Successfully added!", "User was successfully added!")
-                        .WithColor(Color.Green)
-                        .WithCurrentTimestamp();
-                    await command.RespondAsync(embed: embedBuilder.Build());
-                    break;
-            }
+            await command.RespondAsync(embed: embedBuilder.Build());
         }
-
-
 
         public async Task PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
         {

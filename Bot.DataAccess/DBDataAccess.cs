@@ -5,6 +5,7 @@ using MultigamingBot.Configuration;
 using System.Data;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Bot.DataObjects;
 
 namespace Bot.DataAccess
 {
@@ -25,13 +26,6 @@ namespace Bot.DataAccess
                 {
                     connection.Open();
 
-                    //@l_code nvarchar(50), 
-                    //@l_code_content1 nvarchar(50), 
-                    //@l_code_content2 nvarchar(50), 
-                    //@l_code_content3 nvarchar(50), 
-                    //@l_status bit,
-                    //@l_date_redeem nvarchar(50), 
-                    //@l_code_source nvarchar(50)
                     var cmd = new SqlCommand("dbo.uspAddCode", connection);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@l_id", SqlDbType.NVarChar, 50).Value = Guid.NewGuid().ToString();
@@ -111,7 +105,7 @@ namespace Bot.DataAccess
                     cmd.Parameters.Add("@l_displayname", SqlDbType.NVarChar, 50).Value = name;
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    return cmd.ExecuteNonQuery()/2;
+                    return cmd.ExecuteNonQuery()/2; //Runs 2 inserts in DB therefore we divide the result by 2 since 1 user gets 2 rows inserted.
                 }
             }
             catch (Exception e)
@@ -121,26 +115,95 @@ namespace Bot.DataAccess
             return 0;
         }
 
-        public bool UserExistsInDatabase(string name)
+        //Accepts the user ID, Username and Gamemode. Method checks if the user exists in the database and whether or not user has changed their username.
+        //If the user is in the database, but has changed their username it returns -99 to indicate so. Other than that it returns 0 (doesn't exist) or 1 (exists).
+        //DB returns a data row based on the UserID which is unique for every user and is set as PK in DB so should not ever return more than 1 record.
+        public int ExactUserExistsInDatabase(int id, string name, string gamemode)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(_config.GetSection("connectionString")))
                 using (var cmd = new SqlCommand("dbo.uspUserExistsInDatabase", connection))
+                using (var dataAdapter = new SqlDataAdapter())
+                using (var dt = new DataTable())
                 {
                     connection.Open();
 
-                    cmd.Parameters.Add("@l_displayname", SqlDbType.NVarChar, 50).Value = name;
+                    cmd.Parameters.Add("@l_userid", SqlDbType.Int).Value = id;
+                    cmd.Parameters.Add("@l_username", SqlDbType.NVarChar, 50).Value = name;
+                    cmd.Parameters.Add("@l_gamemode", SqlDbType.NVarChar, 50).Value = gamemode;
                     cmd.CommandType = CommandType.StoredProcedure;
+                    dataAdapter.SelectCommand = cmd;
 
-                    return ((int)cmd.ExecuteScalar()) != 0;
+                    dataAdapter.Fill(dt);
+                    if (dt.Rows.Count == 0)
+                    {
+                        return 1; //Exists
+                    }
+                    if (dt.Rows[0]["Username"].ToString() != name || dt.Rows[0]["Gamemode"].ToString() != gamemode)
+                    {
+                        return -99; //Exists under different name
+                    }
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError($"Error occured while running \"dbo.uspUserExistsInDatabase\" {e.Message}");
             }
-            return true;
+            return 0; //Doesn't exist
         }
+
+        //Will always fetch because of logic that runs this
+        public OSRSUserBasic? GetOSRSBasicUserData (string name)
+        {
+            var userData = new OSRSUserBasic();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetSection("connectionString")))
+                using (var cmd = new SqlCommand("dbo.uspGetUserInfoByName", connection))
+                {
+                    connection.Open();
+
+                    cmd.Parameters.Add("@l_displayname", SqlDbType.NVarChar, 50).Value = name;
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        userData.Id = reader.GetInt32(0);
+                        userData.UserName = reader.GetString(1);
+                        userData.GameMode = reader.GetString(2);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error occured while running \"dbo.uspUserExistsInDatabase\" {e.Message}");
+            }
+            return userData;
+        }
+
+        //public bool OSRSNameChangeCheck(int userId, string name)
+        //{
+        //    try
+        //    {
+        //        using (SqlConnection connection = new SqlConnection(_config.GetSection("connectionString")))
+        //        using (var cmd = new SqlCommand("dbo.uspUserExistsInDatabase", connection))
+        //        {
+        //            connection.Open();
+
+        //            cmd.Parameters.Add("@l_userid", SqlDbType.Int).Value = userId;
+        //            cmd.Parameters.Add("@l_username", SqlDbType.NVarChar, 50).Value = name;
+        //            cmd.CommandType = CommandType.StoredProcedure;
+
+        //            return ((int)cmd.ExecuteScalar()) != 0;
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError($"Error occured while running \"dbo.uspUserExistsInDatabase\" {e.Message}");
+        //    }
+        //    return userData;
+        //}
     }
 }

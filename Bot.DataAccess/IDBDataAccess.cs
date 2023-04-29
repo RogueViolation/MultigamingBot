@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bot.DataObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,8 @@ namespace Bot.DataAccess
 
         int AddUserToOSRSUsers(int id, string name, string gamemode);
 
-        bool UserExistsInDatabase(string name);
+        int ExactUserExistsInDatabase(int id, string name, string gamemode);
+
+        OSRSUserBasic? GetOSRSBasicUserData(string name);
     }
 }

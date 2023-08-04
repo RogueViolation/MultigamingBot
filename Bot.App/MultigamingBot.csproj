@@ -30,7 +30,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bot.DBDataAccess\Bot.DataAccess.csproj" />
+    <ProjectReference Include="..\Bot.DataAccess\Bot.DataAccess.csproj" />
+    <ProjectReference Include="..\Bot.OSRSHiscores\Bot.OSRSHiscores.csproj" />
     <ProjectReference Include="..\Bot.Utilities\Bot.Utilities.csproj" />
   </ItemGroup>
 

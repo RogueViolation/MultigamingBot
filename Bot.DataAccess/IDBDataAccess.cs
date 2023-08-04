@@ -11,5 +11,9 @@ namespace Bot.DataAccess
         Task ExecuteCodeRedeemedProcedure(string code, string? dataField1, string? dataField2, string? dataField3, bool status, string? date, ulong source);
 
         Task RetrieveStoredCodes();
+
+        Task<bool> CodeExists(string code);
+
+        int AddUserToOSRSUsers(int id, string name, string gamemode);
     }
 }

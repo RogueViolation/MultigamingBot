@@ -25,13 +25,6 @@ namespace Bot.DataAccess
                 {
                     connection.Open();
 
-                    //@l_code nvarchar(50), 
-                    //@l_code_content1 nvarchar(50), 
-                    //@l_code_content2 nvarchar(50), 
-                    //@l_code_content3 nvarchar(50), 
-                    //@l_status bit,
-                    //@l_date_redeem nvarchar(50), 
-                    //@l_code_source nvarchar(50)
                     var cmd = new SqlCommand("dbo.uspAddCode", connection);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@l_id", SqlDbType.NVarChar, 50).Value = Guid.NewGuid().ToString();
@@ -43,6 +36,7 @@ namespace Bot.DataAccess
                     cmd.Parameters.Add("@l_date_redeem", SqlDbType.NVarChar, 50).Value = date;
                     cmd.Parameters.Add("@l_code_source", SqlDbType.NVarChar, 50).Value = source;
 
+                    _logger.LogInformation($"Adding redemption atempt to DB. Params: Code {code}, Data1 {dataField1}, Data2 {dataField2}, Data3 {dataField3}, Status {status}, Source {source}");
                     cmd.ExecuteNonQuery();
                     connection.Close();
                 }

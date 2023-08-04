@@ -42,11 +42,21 @@ namespace Bot.DataAccess
 
         public T HttpClientGetJson<T>(string address, Dictionary<string, string>? headers = null)
         {
-            var response = _httpClient.GetAsync(address);
+            try
+            {
+                var response = _httpClient.GetAsync(address).GetAwaiter().GetResult();
 
-            var text = response.GetAwaiter().GetResult().Content.ReadAsStringAsync().Result;
-
-            return JsonConvert.DeserializeObject<T>(text);
+                if (response.IsSuccessStatusCode)
+                {
+                    var text = response.Content.ReadAsStringAsync().Result;
+                    return JsonConvert.DeserializeObject<T>(text);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"An error occured while executing GET. {e.Message}");
+            }
+            return default(T);
         }
     }
 }

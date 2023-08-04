@@ -60,47 +60,67 @@ namespace MultigamingBot.Bot
 
         public async Task HandleRedeemCommandAsync(SocketSlashCommand command)
         {
-            _logger.LogInformation($"Got a command to run NRZ code redemption, running flow.");
-            var embedBuilder = new EmbedBuilder();
-            var guildUser = command.User;
-            if (!await _dataAccess.CodeExists(command.Data.Options.First().Value.ToString()))
+            try
             {
-                var data = await Task.Run(() => DoCodeRedeemRequest(command.Data.Options.First().Value.ToString()));
-
-                switch (data.state)
+                _logger.LogInformation($"Got a command to run NRZ code redemption, running flow.");
+                var embedBuilder = new EmbedBuilder();
+                var guildUser = command.User;
+                if (!await _dataAccess.CodeExists(command.Data.Options.First().Value.ToString()))
                 {
-                    case "success":
-                        embedBuilder
-                            .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
-                            .WithTitle("NRZ Code Redeem")
-                            .AddField(data.state.ToUpper(), data.message)
-                            .WithColor(Color.Green)
-                            .WithCurrentTimestamp();
-                        break;
-                    case "error":
-                        embedBuilder
-                            .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
-                            .WithTitle("NRZ Code Redeem failed")
-                            .AddField(data.state.ToUpper(), data.message)
-                            .WithColor(Color.Red)
-                            .WithCurrentTimestamp();
-                        break;
-                    default:
-                        embedBuilder
-                            .WithAuthor(guildUser.ToString(), guildUser.GetAvatarUrl() ?? guildUser.GetDefaultAvatarUrl())
-                            .WithTitle("NRZ Code Redeem fallback")
-                            .AddField("Command fallback", $"Something went wrong while redeeming the code.")
-                            .WithColor(Color.DarkRed)
-                            .WithFooter("Probably HTTP Request failed...")
-                            .WithCurrentTimestamp();
+                    var data = await Task.Run(() => DoCodeRedeemRequest(command.Data.Options.First().Value.ToString()));
 
-                        break;
+                    switch (data.state)
+                    {
+                        case "success":
+                            embedBuilder
+                                .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
+                                .WithTitle("NRZ Code Redeem")
+                                .AddField(data.state.ToUpper(), data.message)
+                                .WithColor(Color.Green)
+                                .WithCurrentTimestamp();
+                            break;
+                        case "error":
+                            embedBuilder
+                                .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
+                                .WithTitle("NRZ Code Redeem failed")
+                                .AddField(data.state.ToUpper(), data.message)
+                                .WithColor(Color.Red)
+                                .WithCurrentTimestamp();
+                            break;
+                        default:
+                            embedBuilder
+                                .WithAuthor(guildUser.ToString(), guildUser.GetAvatarUrl() ?? guildUser.GetDefaultAvatarUrl())
+                                .WithTitle("NRZ Code Redeem fallback")
+                                .AddField("Command fallback", $"Something went wrong while redeeming the code.")
+                                .WithColor(Color.DarkRed)
+                                .WithFooter("Probably HTTP Request failed...")
+                                .WithCurrentTimestamp();
+
+                            break;
+                    }
+
+                    // Now, Let's respond with the embed.
+                    ProcessCodeMessage(data.message, data.state, command.Data.Options.First().Value.ToString(), guildUser.Id);
+                    await command.RespondAsync(embed: embedBuilder.Build());
                 }
+                else
+                {
+                    embedBuilder
+                        .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
+                        .WithTitle("NRZ Code Redeem fallback")
+                        .AddField("Command fallback", "Code already exists in DB!")
+                        .WithColor(Color.Red)
+                        .WithCurrentTimestamp();
 
-                // Now, Let's respond with the embed.
-                ProcessCodeMessage(data.message, data.state, command.Data.Options.First().Value.ToString(), guildUser.Id);
-                await command.RespondAsync(embed: embedBuilder.Build());
+                    await _client.GetGuild(443484727236624384).GetTextChannel(751866189306921111).SendMessageAsync(embed: embedBuilder.Build());
+                }
             }
+            catch (Exception e)
+            {
+                _logger.LogError($"Automatic code redemption failed {e.Message}");
+            }
+
+            await Task.CompletedTask;
         }
 
         public async Task RedeemCodeAutomaticAsync(SocketMessage msg)
@@ -112,7 +132,7 @@ namespace MultigamingBot.Bot
                 var guildUser = msg.Author;
                 var codeRedeemable = msg.Content.Substring(msg.Content.LastIndexOf("Copy this code ") + "Copy this code ".Length, 19);
 
-                await Task.Delay(1000); //Add delay because when code is published it is not still active
+                await Task.Delay(100000); //Add delay because when code is published it is not still active
                 if (!await _dataAccess.CodeExists(codeRedeemable))
                 {
                     var data = await Task.Run(() => DoCodeRedeemRequest(codeRedeemable));
@@ -188,7 +208,7 @@ namespace MultigamingBot.Bot
 
         public Task LogAsync(LogMessage msg)
         {
-            _logger.LogInformation(msg.Message);
+            _logger.LogInformation(msg.ToString());
 
             return Task.CompletedTask;
         }

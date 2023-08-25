@@ -8,7 +8,8 @@ namespace Bot.DataAccess
 {
     public interface IHttpDataAccess
     {
-        T HttpClientPostJson<T>(string address, string content, Dictionary<string, string>? headers = null);
-        T HttpClientGetJson<T>(string address, Dictionary<string, string>? headers = null);
+        string HttpClientPost(string address, string content, Dictionary<string, string>? headers = null);
+        string HttpClientGet(string address, Dictionary<string, string>? headers = null);
+        T DeserializeJson<T>(string json);
     }
 }

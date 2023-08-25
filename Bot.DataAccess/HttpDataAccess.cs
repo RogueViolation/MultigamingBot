@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Bot.DataAccess
 {
@@ -22,25 +23,35 @@ namespace Bot.DataAccess
             _httpClientProvider = httpClientProvider;
             _httpClient = _httpClientProvider.ProvideClient();
         }
-        public T HttpClientPostJson<T>(string address, string request, Dictionary<string, string>? headers = null)
+        public string HttpClientPost(string address, string request, Dictionary<string, string>? headers = null)
         {
-
-            var content = new StringContent(request, Encoding.UTF8, "application/json");
-            if (headers != null)
+            try
             {
-                foreach (var header in headers)
+                var content = new StringContent(request, Encoding.UTF8, "application/json");
+                if (headers != null)
                 {
-                    content.Headers.Add(header.Key, header.Value);
+                    foreach (var header in headers)
+                    {
+                        content.Headers.Add(header.Key, header.Value);
+                    }
+                }
+                var response = _httpClient.PostAsync(address, content).GetAwaiter().GetResult();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return response.Content.ReadAsStringAsync().Result;
                 }
             }
-            var response = _httpClient.PostAsync(address, content);
+            catch (Exception e)
+            {
+                _logger.LogError($"An error occured while executing GET. {e.Message}");
+            }
 
-            var text = response.GetAwaiter().GetResult().Content.ReadAsStringAsync().Result;
+            return string.Empty;
 
-            return JsonConvert.DeserializeObject<T>(text);
         }
 
-        public T HttpClientGetJson<T>(string address, Dictionary<string, string>? headers = null)
+        public string HttpClientGet(string address, Dictionary<string, string>? headers = null)
         {
             try
             {
@@ -48,15 +59,19 @@ namespace Bot.DataAccess
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var text = response.Content.ReadAsStringAsync().Result;
-                    return JsonConvert.DeserializeObject<T>(text);
+                    return response.Content.ReadAsStringAsync().Result;
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError($"An error occured while executing GET. {e.Message}");
             }
-            return default(T);
+            return string.Empty;
+        }
+
+        public T DeserializeJson<T>(string json)
+        {
+            return JsonConvert.DeserializeObject<T>(json) ?? default;
         }
     }
 }

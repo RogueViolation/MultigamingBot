@@ -34,7 +34,6 @@ namespace MultigamingBot.Bot
             _config = config;
             _client = clientProvider.ProvideDiscordSocketClient();
             _httpDataAccess = httpDataAccess;
-            embedBuilder = new EmbedBuilder();
         }
         public async Task HandleListRoleCommandAsync(SocketSlashCommand command)
         {
@@ -271,8 +270,9 @@ namespace MultigamingBot.Bot
                     {"Sec-Fetch-Dest", "empty"},
                 };
 
-            return _httpDataAccess.HttpClientPostJson<NRZResponse>("https://api.nightriderz.world/gateway.php", $"{{\"serviceName\":\"account\",\"methodName\":\"redeemcode\",\"parameters\":[\"{codeRedeemable}\"]}}", headers);
+            var json = _httpDataAccess.HttpClientPost("https://api.nightriderz.world/gateway.php", $"{{\"serviceName\":\"account\",\"methodName\":\"redeemcode\",\"parameters\":[\"{codeRedeemable}\"]}}", headers);
 
+            return _httpDataAccess.DeserializeJson<NRZResponse>(json);
 
         }
     }

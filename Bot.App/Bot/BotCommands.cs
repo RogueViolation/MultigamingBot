@@ -26,8 +26,8 @@ namespace MultigamingBot.Bot
         private readonly IDBDataAccess _dataAccess;
         private readonly IConfigurationReader _config;
         private readonly IHttpDataAccess _httpDataAccess;
+
         public BotCommands(ILogger<BotCommands> logger, IDBDataAccess dataAccess, IDiscordSocketClientProvider clientProvider, IConfigurationReader config, IHttpDataAccess httpDataAccess)
-        private readonly EmbedBuilder embedBuilder;
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -127,9 +127,9 @@ namespace MultigamingBot.Bot
                 _logger.LogInformation($"Caught automatic NRZ code redemption message, running flow.");
                 var embedBuilder = new EmbedBuilder();
                 var guildUser = msg.Author;
-                var codeRedeemable = msg.Content.Substring(msg.Content.LastIndexOf("Copy this code ") + "Copy this code ".Length, 19);
+                var codeRedeemable = new Regex("PR3M-([A-Za-z0-9]+(-[A-Za-z0-9]+)+)").Match(msg.Content).Value;
 
-                await Task.Delay(100000); //Add delay because when code is published it is not still active
+            await Task.Delay(100000); //Add delay because when code is published it is not still active
                 if (!await _dataAccess.CodeExists(codeRedeemable))
                 {
                     var data = await Task.Run(() => DoCodeRedeemRequest(codeRedeemable));

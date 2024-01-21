@@ -61,36 +61,20 @@ namespace MultigamingBot.Bot
                 _logger.LogInformation($"Got a command to run NRZ code redemption, running flow.");
                 var embedBuilder = new EmbedBuilder();
                 var guildUser = command.User;
-                if (!await _dataAccess.CodeExists(command.Data.Options.First().Value.ToString()))
+                if (true)
                 {
                     var data = await Task.Run(() => DoCodeRedeemRequest(command.Data.Options.First().Value.ToString()));
 
                     switch (data.state)
                     {
                         case "success":
-                            embedBuilder
-                                .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
-                                .WithTitle("NRZ Code Redeem")
-                                .AddField(data.state.ToUpper(), data.message)
-                                .WithColor(Color.Green)
-                                .WithCurrentTimestamp();
+                            BuildEmbed(embedBuilder, "NRZ Code Redeem", data.state.ToUpper(), Regex.Replace(data.message, "<.*?>", String.Empty), Color.Green);
                             break;
                         case "error":
-                            embedBuilder
-                                .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
-                                .WithTitle("NRZ Code Redeem failed")
-                                .AddField(data.state.ToUpper(), data.message)
-                                .WithColor(Color.Red)
-                                .WithCurrentTimestamp();
+                            BuildEmbed(embedBuilder, "NRZ Code Redeem failed", data.state.ToUpper(), data.message, Color.Red);
                             break;
                         default:
-                            embedBuilder
-                                .WithAuthor(guildUser.ToString(), guildUser.GetAvatarUrl() ?? guildUser.GetDefaultAvatarUrl())
-                                .WithTitle("NRZ Code Redeem fallback")
-                                .AddField("Command fallback", $"Something went wrong while redeeming the code.")
-                                .WithColor(Color.DarkRed)
-                                .WithFooter("Probably HTTP Request failed...")
-                                .WithCurrentTimestamp();
+                            BuildEmbed(embedBuilder, "NRZ Code Redeem fallback", "Command fallback", $"Something went wrong while redeeming the code.", Color.DarkRed, "Probably HTTP Request failed...");
 
                             break;
                     }
@@ -101,12 +85,7 @@ namespace MultigamingBot.Bot
                 }
                 else
                 {
-                    embedBuilder
-                        .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
-                        .WithTitle("NRZ Code Redeem fallback")
-                        .AddField("Command fallback", "Code already exists in DB!")
-                        .WithColor(Color.Red)
-                        .WithCurrentTimestamp();
+                    BuildEmbed(embedBuilder, "NRZ Code Redeem fallback", "Command fallback", "Code already exists in DB!", Color.Red);
 
                     await _client.GetGuild(443484727236624384).GetTextChannel(751866189306921111).SendMessageAsync(embed: embedBuilder.Build());
                 }
@@ -136,47 +115,24 @@ namespace MultigamingBot.Bot
                     switch (data.state)
                     {
                         case "ok":
-                            embedBuilder
-                                .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
-                                .WithTitle("NRZ Code Redeem")
-                                .AddField(data.state.ToUpper(), Regex.Replace(data.message, "<.*?>", String.Empty))
-                                .WithColor(Color.Green)
-                                .WithCurrentTimestamp();
+                            BuildEmbed(embedBuilder, "NRZ Code Redeem", data.state.ToUpper(), Regex.Replace(data.message, "<.*?>", String.Empty), Color.Green);
                             break;
                         case "error":
-                            embedBuilder
-                                .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
-                                .WithTitle("NRZ Code Redeem failed")
-                                .AddField(data.state.ToUpper(), data.message)
-                                .WithColor(Color.Red)
-                                .WithCurrentTimestamp();
+                            BuildEmbed(embedBuilder, "NRZ Code Redeem failed", data.state.ToUpper(), data.message, Color.Red);
                             break;
                         default:
-                            embedBuilder
-                                .WithAuthor(guildUser.ToString(), guildUser.GetAvatarUrl() ?? guildUser.GetDefaultAvatarUrl())
-                                .WithTitle("NRZ Code Redeem fallback")
-                                .AddField("Command fallback", $"Something went wrong while redeeming the code.")
-                                .WithColor(Color.DarkRed)
-                                .WithFooter("Probably HTTP Request failed...")
-                                .WithCurrentTimestamp();
-
+                            BuildEmbed(embedBuilder, "NRZ Code Redeem fallback", "Command fallback", $"Something went wrong while redeeming the code.", Color.DarkRed, "Probably HTTP Request failed...");
                             break;
                     }
 
-                    await _client.GetGuild(443484727236624384).GetTextChannel(751866189306921111).SendMessageAsync(embed: embedBuilder.Build());
                     ProcessCodeMessage(data.message, data.state, codeRedeemable, guildUser.Id);
                 }
                 else
                 {
-                    embedBuilder
-                        .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
-                        .WithTitle("NRZ Code Redeem fallback")
-                        .AddField("Command fallback", "Code already exists in DB!")
-                        .WithColor(Color.Red)
-                        .WithCurrentTimestamp();
+                    BuildEmbed(embedBuilder, "NRZ Code Redeem fallback", "Command fallback", "Code already exists in DB!", Color.Red);
 
-                    await _client.GetGuild(443484727236624384).GetTextChannel(751866189306921111).SendMessageAsync(embed: embedBuilder.Build());
                 }
+                await _client.GetGuild(443484727236624384).GetTextChannel(751866189306921111).SendMessageAsync(embed: embedBuilder.Build());
             }
             catch (Exception e)
             {
@@ -274,6 +230,21 @@ namespace MultigamingBot.Bot
 
             return _httpDataAccess.DeserializeJson<NRZResponse>(json);
 
+        }
+
+        private EmbedBuilder BuildEmbed(EmbedBuilder builder, string title, string fieldName, string fieldText, Color color, string footer = "")
+        {
+            builder
+                        .WithAuthor(_client.CurrentUser.ToString(), _client.CurrentUser.GetAvatarUrl() ?? _client.CurrentUser.GetDefaultAvatarUrl())
+                        .WithTitle(title)
+                        .AddField(fieldName, fieldText)
+                        .WithColor(color)
+                        .WithCurrentTimestamp();
+            if (footer != "")
+            {
+                builder.WithFooter(footer);
+            }
+            return builder;
         }
     }
 }
